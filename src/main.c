@@ -19,6 +19,7 @@ main(int argc, char** argv)
 {
 	if (argc != 3) fatal("Use: serve <port> <dir>", exit, 1);
 	int port = atoi(argv[1]);
+	char* dir = argv[2];
 	
 	server_setup(port);	
 	client_setup();
@@ -50,7 +51,7 @@ main(int argc, char** argv)
 		req_buff[bytes_read] = '\0';
 
 		req = parse_request(req_buff);
-		res = respond(req);
+		res = respond(req, dir);
 		send(client.fd, res, strlen(res), 0);
 		free(res);
 

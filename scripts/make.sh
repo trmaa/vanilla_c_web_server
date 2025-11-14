@@ -28,6 +28,10 @@ build() {
 	link
 }
 
+install() {
+	cp $name /usr/bin/
+}
+
 main() {
 	for arg in "$@"; do
 		$arg

@@ -22,7 +22,7 @@ parse_request(char* req_buff)
 }
 
 char*
-respond(http_t req)
+respond(http_t req, char* dir)
 {
 	if (strcmp(req.version, "HTTP/1.1")) fatal("Unsuported http version", cleanup, 1);
 	if (strcmp(req.method, "GET")) fatal("Unsuported http method", cleanup, 1);
@@ -32,6 +32,12 @@ respond(http_t req)
 
 	char path[256];
 	strncpy(path, req.path + 1, sizeof(path) - 1);
+	{
+		char temp[256];
+		strcpy(temp, dir);
+		strcat(temp, path);
+		strcpy(path, temp);
+	}
 	path[sizeof(path) - 1] = '\0';
 
 	/* 
