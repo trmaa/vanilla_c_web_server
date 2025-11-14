@@ -33,9 +33,15 @@ install() {
 }
 
 main() {
+	local time=$(date +%s)
+
+	local arg
 	for arg in "$@"; do
 		$arg
 	done
+
+	local dtime=$(($(date +%s)-$time))
+	echo -e "Done in $dtime seconds. In C++ it would've been $((($dtime + 1) * 25)) at least... :)"
 }
 
 main "$@"
