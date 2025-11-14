@@ -17,6 +17,12 @@ chmod +x ./scripts/make.sh
 serve <port> <dir>
 ```
 
+Example:
+```bash 
+serve 8080 ./assets/
+firefox http://localhost:8080/index.html
+```
+
 ## Features to do:
 
 It lacks url encoding, file trees for directorys, querys...
