@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <arpa/inet.h>
 
 typedef struct sockaddr_in socketaddr_t;
@@ -15,7 +14,10 @@ struct {
 void
 server_setup(int port)
 {
-	(server.fd = socket(AF_INET, SOCK_STREAM, 0)) ? 0 : fatal("Failed to create socket", exit, 1); 
+	(server.fd = socket(AF_INET, SOCK_STREAM, 0)) < 0 ? fatal("Failed to create socket", cleanup, 1) : 0;
+
+	int opt = 1;
+	setsockopt(server.fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
 	server.addr.sin_family = AF_INET;
 	server.addr.sin_addr.s_addr = INADDR_ANY;

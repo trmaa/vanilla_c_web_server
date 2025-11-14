@@ -49,7 +49,7 @@ respond(http_t req)
 		sprintf(res, "HTTP/1.1 404 Not Found\r\n"
 				"Content-Type: text/plain\r\n"
 				"\r\n"
-				"404 - File Not Found");
+				"404 - File Not Found\r\n");
 		return res;
 	  }
 	
