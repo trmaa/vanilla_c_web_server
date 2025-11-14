@@ -22,6 +22,36 @@ parse_request(char* req_buff)
 }
 
 char*
+get_content_type(const char* path)
+{
+	const char* ext = strrchr(path, '.');
+	if (!ext) return "text/plain";
+
+	if (strcmp(ext, ".html") == 0 || strcmp(ext, ".htm") == 0)
+		return "text/html";
+	else if (strcmp(ext, ".js") == 0)
+		return "application/javascript";
+	else if (strcmp(ext, ".css") == 0)
+		return "text/css";
+	else if (strcmp(ext, ".json") == 0)
+		return "application/json";
+	else if (strcmp(ext, ".png") == 0)
+		return "image/png";
+	else if (strcmp(ext, ".jpg") == 0 || strcmp(ext, ".jpeg") == 0)
+		return "image/jpeg";
+	else if (strcmp(ext, ".gif") == 0)
+		return "image/gif";
+	else if (strcmp(ext, ".svg") == 0)
+		return "image/svg+xml";
+	else if (strcmp(ext, ".ico") == 0)
+		return "image/x-icon";
+	else if (strcmp(ext, ".txt") == 0)
+		return "text/plain";
+	else
+		return "application/octet-stream";
+}
+
+char*
 respond(http_t req, char* dir)
 {
 	if (strcmp(req.version, "HTTP/1.1")) fatal("Unsuported http version", cleanup, 1);
@@ -59,9 +89,11 @@ respond(http_t req, char* dir)
 		return res;
 	  }
 	
+	const char* content_type = get_content_type(path);
+
 	sprintf(res, "HTTP/1.1 200 OK\r\n"
-			"Content-Type: text/html\r\n"
-			"\r\n");
+			"Content-Type: %s\r\n"
+			"\r\n", content_type);
 
 	char buff[1024];
 
