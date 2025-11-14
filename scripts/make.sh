@@ -16,7 +16,7 @@ compile() {
 
 link() {
 	echo -e "\e[1;32m * Linking\e[0m"
-	gcc objects/*.o -o $name
+	gcc objects/*.o -o $name -std=c23
 }
 
 clean() {

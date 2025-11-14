@@ -10,6 +10,6 @@ extern struct {
 	socketaddr_t addr;
 } server;
 
-void server_setup();
+void server_setup(int port);
 
 #endif

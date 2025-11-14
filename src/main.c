@@ -1,14 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-
-typedef struct sockaddr_in socketaddr_t;
-
+#include <string.h>
 #include "log.h"
 #include "server.h"
 #include "client.h"
-
-int port;
+#include "request.h"
 
 void
 cleanup(int err)
@@ -22,16 +19,21 @@ int
 main(int argc, char** argv)
 {
 	if (argc != 3) fatal("Use: serve <port> <dir>", exit, 1);
-	port = atoi(argv[1]);
+	int port = atoi(argv[1]);
 	
-	server_setup();	
+	server_setup(port);	
 	client_setup();
 
-	char req[1025];
+	debugf("Server is listening on port:  %d\n", port);
+
+	char req_buff[1025];
+	http_t req;
+	char* res;
 
 	while (1) 
 	  {
 		(client.fd = accept(server.fd, (struct sockaddr*)&client.addr, &client.len)) < 0 ? fatal("Failed to accept connection", cleanup, 1) : 0;
+		debugf("Client fd: %d\n", client.fd);
 		
 		debugf("Client connected from: %s:%d\n",
 				inet_ntoa(client.addr.sin_addr),
@@ -39,18 +41,21 @@ main(int argc, char** argv)
 
 		while (1) 
 		  {
-			int bytes_read = recv(client.fd, req, 1024, 0);
+			int bytes_read = recv(client.fd, req_buff, 1024, 0);
 
 			if (bytes_read <= 0) 
 			  {
-				if (bytes_read == 0) debug("Client desconected.\n");
-				else fatal("Corrupt request", cleanup, 1);
+				if (bytes_read == 0) debug("Client desconected.");
+				else fatal("Corrupt req_buffuest", cleanup, 1);
 				break;
 			  }
 
-			req[bytes_read] = '\0';
+			req_buff[bytes_read] = '\0';
 
-			printf("\t%s", req);
+			req = parse_request(req_buff);
+			res = respond(req);
+			send(client.fd, res, strlen(res), 0);
+
 			fflush(stdout);
 		  }
 
