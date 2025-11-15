@@ -26,10 +26,10 @@ firefox http://localhost:8080/index.html
 ## Features to add and flaws:
 
 TODO:
-It lacks url encoding, 
-file trees for directorys, 
-querys...
+- It lacks url encoding, 
+- file trees for directorys, 
+- querys...
 
 FLAWS:
-It handles text responces of up to 8kB.
-Its really bad at responding binary data.
+- It handles text responces of up to 8kB. It core dumps.
+- Its really bad at responding binary data.
