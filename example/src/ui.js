@@ -1,5 +1,4 @@
-//import "utilities.js";
-//import "keyboard.js";
+import { keyboard_add } from "./keyboard.js"
 
 //let dark_mode = window.matchMedia &&
 //                window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -36,6 +35,8 @@ const app = () => `
 
 <div id="keyboards"></div>
 
+<footer>See the original page at: <a href="http://trmaa.github.io">http://trmaa.github.io</a></footer>
+
 `;
 
 function toggle_dark_mode() {
@@ -43,7 +44,7 @@ function toggle_dark_mode() {
 	app_init();
 }
 
-function app_init() {
+export function app_init() {
 	document.body.innerHTML = app();
 
 	let b_dark_mode = document.body.querySelector("#b_dark_mode");

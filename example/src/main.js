@@ -1,5 +1,4 @@
-//import "utilities.js";
-//import "ui.js";
+import { app_init } from "./ui.js" 
 
 (function main() {
 	app_init();
