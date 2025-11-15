@@ -62,6 +62,7 @@ main(int argc, char** argv)
 		printf("RES:\n%s", res);
 
 		send(client.fd, res, strlen(res), 0);
+
 		free(res);
 
 		debug("Client's connection closed!");

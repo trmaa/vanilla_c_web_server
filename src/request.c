@@ -101,16 +101,23 @@ respond(http_t req, char* dir)
 
 	size_t header_size = 512;
 
-	char* res = malloc(file_size + header_size);
+	size_t total_size = header_size + file_size;
+	char* res = malloc(total_size);
 
 	int header_len = sprintf(res, "HTTP/1.1 200 OK\r\n"
-			"Content-Type: %s\r\n"
-			"Content-Length: %ld\r\n"
-			"\r\n", content_type, file_size);
+					"Content-Type: %s\r\n"
+					"Content-Length: %ld\r\n"
+					"\r\n", content_type, file_size);
 
 	size_t bytes_read = fread(res + header_len, 1, file_size, file);
 
-	if (!is_file_binary) res[header_len + bytes_read] = '\0'; 
+	if (bytes_read != (size_t)file_size) 
+	  {
+		debug("Couldn't read all bytes:");
+		debugf("To read: %d, Read: %d\n", file_size, bytes_read);
+	  }
+
+	if (!is_file_binary) res[header_len + bytes_read] = '\0';
 
 	fclose(file);
 	return res;
