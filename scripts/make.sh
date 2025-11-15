@@ -10,7 +10,7 @@ compile() {
 		echo -e "\e[1;32m * Compiling: $file\e[0m"
 		bname=${file##*/}
 		bname=${bname%.c}
-		gcc -c "$file" -o "objects/$bname.o" -Iinclude
+		gcc -c "$file" -o "objects/$bname.o" -Iinclude -Wall
 	done
 }
 

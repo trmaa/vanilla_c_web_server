@@ -1,9 +1,8 @@
 #include <stddef.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <sys/socket.h>
 #include <unistd.h>
-
 #include "log.h"
 #include "request.h"
 
@@ -50,75 +49,48 @@ get_content_type(const char* path)
 		return "text/plain";
 }
 
-char*
-respond(http_t req, char* dir)
+void 
+respond(http_t req, char* dir, int client_fd)
 {
 	if (strcmp(req.version, "HTTP/1.1")) fatal("Unsuported http version", cleanup, 1);
 	if (strcmp(req.method, "GET")) fatal("Unsuported http method", cleanup, 1);
 	if (req.path[0] != '/') fatal("Path must be absolute", cleanup, 1);
 
-	char path[256];
-	strncpy(path, req.path + 1, sizeof(path) - 1);
+	char path[1024];
+	snprintf(path, sizeof(path), "%s%s", dir, req.path + 1);
 
-	{
-		char temp[256];
-		strcpy(temp, dir);
-		strcat(temp, path);
-		strcpy(path, temp);
-	}
-
-	path[sizeof(path) - 1] = '\0';
-
-	/* 
-	 * TODO: 
-	 * 	1. separate querys
-	 * 	2. urldecode
-	 * 	3. normalize
-	 */
-
-	const char* content_type = get_content_type(path);
-
-	int is_file_binary = strncmp(content_type, "text/", 5) 
-				&& strcmp(content_type, "application/javascript")
-				&& strcmp(content_type, "application/json");
-	
-	FILE* file;
-	file = fopen(path, "rb");
-
+	FILE* file = fopen(path, "rb");
 	if (!file) 
 	  {
-		char* res = malloc(512);
-		sprintf(res, "HTTP/1.1 404 Not Found\r\n"
-				"Content-Type: text/plain\r\n"
-				"\r\n"
-				"404 - File Not Found\r\n");
-		return res;
+		char* response = "HTTP/1.1 404 Not Found\r\n"
+			"Content-Type: text/plain\r\n"
+			"\r\n"
+			"404 - File Not Found\r\n";
+		send(client_fd, response, strlen(response), 0);
+		return;
 	  }
 
 	fseek(file, 0, SEEK_END);
 	long file_size = ftell(file);
 	fseek(file, 0, SEEK_SET);
 
-	size_t header_size = 512;
+	const char* content_type = get_content_type(path);
 
-	size_t total_size = header_size + file_size;
-	char* res = malloc(total_size);
-
-	int header_len = sprintf(res, "HTTP/1.1 200 OK\r\n"
+	char header[512];
+	int header_len = snprintf(header, sizeof(header),
+					"HTTP/1.1 200 OK\r\n"
 					"Content-Type: %s\r\n"
 					"Content-Length: %ld\r\n"
 					"\r\n", content_type, file_size);
 
-	size_t bytes_read = fread(res + header_len, 1, file_size, file);
+	send(client_fd, header, header_len, 0);
 
-	if (bytes_read != (size_t)file_size) 
+	char buffer[8192];
+	size_t bytes_read;
+	while ((bytes_read = fread(buffer, 1, sizeof(buffer), file)) > 0) 
 	  {
-		debug("Couldn't read all bytes:");
-		debugf("To read: %d, Read: %d\n", file_size, bytes_read);
+		send(client_fd, buffer, bytes_read, 0);
 	  }
 
-	if (!is_file_binary) res[header_len + bytes_read] = '\0';
-
 	fclose(file);
-	return res;
 }

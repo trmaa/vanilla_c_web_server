@@ -19,7 +19,7 @@ serve <port> <dir>
 
 Example:
 ```bash 
-serve 8080 ./assets/
+serve 8080 example/
 firefox http://localhost:8080/index.html
 ```
 
@@ -32,4 +32,3 @@ TODO:
 
 FLAWS:
 - It handles text responces of up to 8kB. It core dumps.
-- Its really bad at responding binary data.

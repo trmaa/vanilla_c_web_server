@@ -32,7 +32,6 @@ main(int argc, char** argv)
 
 	char req_buff[1025];
 	http_t req;
-	char* res;
 
 	while (1) 
 	  {
@@ -57,13 +56,8 @@ main(int argc, char** argv)
 		printf("REQ:\n%s", req_buff);
 
 		req = parse_request(req_buff);
-		res = respond(req, dir);
 
-		printf("RES:\n%s", res);
-
-		send(client.fd, res, strlen(res), 0);
-
-		free(res);
+		respond(req, dir, client.fd);
 
 		debug("Client's connection closed!");
 		close(client.fd);

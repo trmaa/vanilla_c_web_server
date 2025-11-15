@@ -7,7 +7,7 @@ typedef struct http {
 
 http_t parse_request(char* req_buff);
 
-char* respond(http_t req, char* dir);
+void respond(http_t req, char* dir, int client_fd);
 
 #endif
 
