@@ -19,8 +19,11 @@ int
 main(int argc, char** argv)
 {
 	if (argc != 3) fatal("Use: serve <port> <dir>", exit, 1);
+
 	int port = atoi(argv[1]);
 	char* dir = argv[2];
+
+	if (dir[strlen(dir)-1] != '/') fatal("Dir must end with '/'", exit, 1);
 	
 	server_setup(port);	
 	client_setup();
