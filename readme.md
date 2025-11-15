@@ -23,6 +23,13 @@ serve 8080 ./assets/
 firefox http://localhost:8080/index.html
 ```
 
-## Features to do:
+## Features to add and flaws:
 
-It lacks url encoding, file trees for directorys, querys...
+TODO:
+It lacks url encoding, 
+file trees for directorys, 
+querys...
+
+FLAWS:
+It handles text responces of up to 8kB.
+Its really bad at responding binary data.

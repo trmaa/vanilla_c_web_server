@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,8 +16,6 @@ parse_request(char* req_buff)
 	char* line = strtok(req_buff, "\r\n"); 
 
 	sscanf(line, "%32s %255s %63s", res.method, res.path, res.version);
-
-	printf("Req: %s\n", line);
 
 	return res;
 }
@@ -48,7 +47,7 @@ get_content_type(const char* path)
 	else if (strcmp(ext, ".txt") == 0)
 		return "text/plain";
 	else
-		return "application/octet-stream";
+		return "text/plain";
 }
 
 char*
@@ -58,16 +57,16 @@ respond(http_t req, char* dir)
 	if (strcmp(req.method, "GET")) fatal("Unsuported http method", cleanup, 1);
 	if (req.path[0] != '/') fatal("Path must be absolute", cleanup, 1);
 
-	char* res = malloc(4096);
-
 	char path[256];
 	strncpy(path, req.path + 1, sizeof(path) - 1);
+
 	{
 		char temp[256];
 		strcpy(temp, dir);
 		strcat(temp, path);
 		strcpy(path, temp);
 	}
+
 	path[sizeof(path) - 1] = '\0';
 
 	/* 
@@ -77,19 +76,48 @@ respond(http_t req, char* dir)
 	 * 	3. normalize
 	 */
 
-	FILE* html;
-	html = fopen(path, "r");
+	const char* content_type = get_content_type(path);
 
-	if (!html) 
+	int is_file_binary = strncmp(content_type, "text/", 5) 
+				&& strcmp(content_type, "application/javascript")
+				&& strcmp(content_type, "application/json")
+				&& strcmp(content_type, "text/plain");
+	
+	FILE* file;
+	file = is_file_binary ? fopen(path, "rb") : fopen(path, "r");
+
+	if (!file) 
 	  {
+		char* res = malloc(512);
 		sprintf(res, "HTTP/1.1 404 Not Found\r\n"
 				"Content-Type: text/plain\r\n"
 				"\r\n"
 				"404 - File Not Found\r\n");
 		return res;
 	  }
-	
-	const char* content_type = get_content_type(path);
+
+	if (is_file_binary)
+	  {
+		fseek(file, 0, SEEK_END);
+		long file_size = ftell(file);
+		fseek(file, 0, SEEK_SET);
+
+		size_t header_size = 512;
+
+		char* res = malloc(file_size + header_size);
+
+		int header_len = sprintf(res, "HTTP/1.1 200 OK\r\n"
+						"Content-Type: %s\r\n"
+						"Content-Length: %ld\r\n"
+						"\r\n", content_type, file_size);
+
+		fread(res + header_len, 1, file_size, file);
+
+		fclose(file);
+		return res;
+	  }
+
+	char* res = malloc(8193);
 
 	sprintf(res, "HTTP/1.1 200 OK\r\n"
 			"Content-Type: %s\r\n"
@@ -97,12 +125,12 @@ respond(http_t req, char* dir)
 
 	char buff[1024];
 
-	while (fgets(buff, sizeof(buff), html)) 
+	while (fgets(buff, sizeof(buff), file)) 
 	  {
 		strcat(res, buff);
 	  }
 
-	fclose(html);
+	fclose(file);
 
 	return res;
 }

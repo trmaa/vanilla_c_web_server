@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
@@ -50,8 +51,13 @@ main(int argc, char** argv)
 
 		req_buff[bytes_read] = '\0';
 
+		printf("REQ:\n%s", req_buff);
+
 		req = parse_request(req_buff);
 		res = respond(req, dir);
+
+		printf("RES:\n%s", res);
+
 		send(client.fd, res, strlen(res), 0);
 		free(res);
 
