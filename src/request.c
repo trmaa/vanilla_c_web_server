@@ -1,12 +1,11 @@
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #include "log.h"
 #include "request.h"
-
-void cleanup(int err);
 
 http_t
 parse_request(char* req_buff)
@@ -52,9 +51,9 @@ get_content_type(const char* path)
 void 
 respond(http_t req, char* dir, int client_fd)
 {
-	if (strcmp(req.version, "HTTP/1.1")) fatal("Unsuported http version", cleanup, 1);
-	if (strcmp(req.method, "GET")) fatal("Unsuported http method", cleanup, 1);
-	if (req.path[0] != '/') fatal("Path must be absolute", cleanup, 1);
+	if (strcmp(req.version, "HTTP/1.1")) fatal("Unsuported http version", exit, 1);
+	if (strcmp(req.method, "GET")) fatal("Unsuported http method", exit, 1);
+	if (req.path[0] != '/') fatal("Path must be absolute", exit, 1);
 
 	char path[1024];
 	snprintf(path, sizeof(path), "%s%s", dir, req.path + 1);

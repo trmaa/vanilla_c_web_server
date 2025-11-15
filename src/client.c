@@ -1,15 +1,10 @@
 #include <arpa/inet.h>
+#include "client.h"
 
 typedef struct sockaddr_in socketaddr_t;
 
-struct {
-	int fd;
-	socketaddr_t addr;
-	socklen_t len;
-} client;
-
 void
-client_setup()
+client_setup(client_t* client)
 {
-	client.len = sizeof(client.addr);
+	client->len = sizeof(client->addr);
 }

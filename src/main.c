@@ -7,14 +7,6 @@
 #include "client.h"
 #include "request.h"
 
-void
-cleanup(int err)
-{
-	if (server.fd >= 0) close(server.fd);
-	if (client.fd >= 0) close(client.fd);
-	exit(err);
-}
-
 int
 main(int argc, char** argv)
 {
@@ -24,9 +16,12 @@ main(int argc, char** argv)
 	char* dir = argv[2];
 
 	if (dir[strlen(dir)-1] != '/') fatal("Dir must end with '/'", exit, 1);
-	
-	server_setup(port);	
-	client_setup();
+
+	server_t server;
+	server_setup(&server, port);	
+
+	client_t client;
+	client_setup(&client);
 
 	debugf("Server is listening on port:  %d\n", port);
 

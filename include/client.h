@@ -5,12 +5,12 @@
 
 typedef struct sockaddr_in socketaddr_t;
 
-extern struct {
+typedef struct client {
 	int fd;
 	socketaddr_t addr;
 	socklen_t len;
-} client;
+} client_t;
 
-void client_setup();
+void client_setup(client_t* client);
 
 #endif
