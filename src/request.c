@@ -80,11 +80,10 @@ respond(http_t req, char* dir)
 
 	int is_file_binary = strncmp(content_type, "text/", 5) 
 				&& strcmp(content_type, "application/javascript")
-				&& strcmp(content_type, "application/json")
-				&& strcmp(content_type, "text/plain");
+				&& strcmp(content_type, "application/json");
 	
 	FILE* file;
-	file = is_file_binary ? fopen(path, "rb") : fopen(path, "r");
+	file = fopen(path, "rb");
 
 	if (!file) 
 	  {
@@ -96,41 +95,23 @@ respond(http_t req, char* dir)
 		return res;
 	  }
 
-	if (is_file_binary)
-	  {
-		fseek(file, 0, SEEK_END);
-		long file_size = ftell(file);
-		fseek(file, 0, SEEK_SET);
+	fseek(file, 0, SEEK_END);
+	long file_size = ftell(file);
+	fseek(file, 0, SEEK_SET);
 
-		size_t header_size = 512;
+	size_t header_size = 512;
 
-		char* res = malloc(file_size + header_size);
+	char* res = malloc(file_size + header_size);
 
-		int header_len = sprintf(res, "HTTP/1.1 200 OK\r\n"
-						"Content-Type: %s\r\n"
-						"Content-Length: %ld\r\n"
-						"\r\n", content_type, file_size);
-
-		fread(res + header_len, 1, file_size, file);
-
-		fclose(file);
-		return res;
-	  }
-
-	char* res = malloc(8193);
-
-	sprintf(res, "HTTP/1.1 200 OK\r\n"
+	int header_len = sprintf(res, "HTTP/1.1 200 OK\r\n"
 			"Content-Type: %s\r\n"
-			"\r\n", content_type);
+			"Content-Length: %ld\r\n"
+			"\r\n", content_type, file_size);
 
-	char buff[1024];
+	size_t bytes_read = fread(res + header_len, 1, file_size, file);
 
-	while (fgets(buff, sizeof(buff), file)) 
-	  {
-		strcat(res, buff);
-	  }
+	if (!is_file_binary) res[header_len + bytes_read] = '\0'; 
 
 	fclose(file);
-
 	return res;
 }
