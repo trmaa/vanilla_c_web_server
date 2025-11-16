@@ -4,23 +4,25 @@ Its a small vanilla C very basic program which lets you host html or whatever fi
 
 ## Instalation:
 
-```bash
+``` console
 git clone https://github.com/trmaa/vanilla_c_web_server.git
 cd vanilla_c_web_server
 chmod +x ./scripts/make.sh
-./scripts/make.sh build install
+$ ./scripts/make.sh build install
+gcc src/*.c -o serve -Iinclude
+cp serve /usr/bin/serve
 ```
 
 ## Use:
 
-```bash 
-serve [-p port] [-d directory]
+``` console 
+$ serve [-p port] [-d directory]
 ```
 
 Example:
-```bash 
-serve -d example/
-firefox http://localhost:8080/index.html
+``` console 
+$ serve -d example/
+$ firefox http://localhost:8080/index.html
 ```
 
 ## Features to add and flaws:
