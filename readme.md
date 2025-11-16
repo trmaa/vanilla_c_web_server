@@ -5,9 +5,9 @@ Its a small vanilla C very basic program which lets you host html or whatever fi
 ## Instalation:
 
 ``` console
-git clone https://github.com/trmaa/vanilla_c_web_server.git
-cd vanilla_c_web_server
-chmod +x ./scripts/make.sh
+$ git clone https://github.com/trmaa/vanilla_c_web_server.git
+$ cd vanilla_c_web_server
+$ chmod +x ./scripts/make.sh
 $ ./scripts/make.sh build install
 gcc src/*.c -o serve -Iinclude
 cp serve /usr/bin/serve
