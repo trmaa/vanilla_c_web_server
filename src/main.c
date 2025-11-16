@@ -36,7 +36,7 @@
 #include "socket.h"
 #include "request.h"
 
-void
+static void
 flag_config(int* port, char** dir, int argc, char** argv)
 {
 	for (int i = 1; i < argc; i++) 

@@ -36,7 +36,7 @@ parse_request(char* req_buff)
 	return res;
 }
 
-char*
+static char*
 get_content_type(const char* path)
 {
 	const char* ext = strrchr(path, '.');
