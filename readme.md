@@ -1,4 +1,4 @@
-# Web Server/API hoster...
+# HTTP Server
 
 Its a small vanilla C very basic program which lets you host html or whatever file on localhost.
 
