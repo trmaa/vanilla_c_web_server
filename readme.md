@@ -14,12 +14,12 @@ chmod +x ./scripts/make.sh
 ## Use:
 
 ```bash 
-serve <port> <dir>
+serve [-p port] [-d directory]
 ```
 
 Example:
 ```bash 
-serve 8080 example/
+serve -d example/
 firefox http://localhost:8080/index.html
 ```
 
@@ -31,4 +31,5 @@ TODO:
 - querys...
 
 FLAWS:
-- It handles text responces of up to 8kB. It core dumps.
+- It handles text responces of up to 8kB, so it core dumps.
+- It also core dumps for no reason some times.

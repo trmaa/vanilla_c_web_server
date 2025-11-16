@@ -7,13 +7,50 @@
 #include "client.h"
 #include "request.h"
 
+void
+log_usage(int err)
+{
+	fprintf(stderr, "Usage: serve [-p port] [-d directory]\n");
+	fprintf(stderr, "Options:\n");
+	fprintf(stderr, "  -h HELP\n");
+	fprintf(stderr, "  -p PORT      (default: 8080)\n");
+	fprintf(stderr, "  -d DIR       (default: ./)\n");
+	exit(err);
+}
+
+void
+flag_config(int* port, char** dir, int argc, char** argv)
+{
+	for (int i = 1; i < argc; i++) 
+	  {
+		if (argv[i][0] != '-') continue;
+
+		switch (argv[i][1])
+		  {
+			case 'h':
+				log_usage(0);
+				break;
+			case 'p':
+				if (i+1 >= argc) fatal("Incomplete flag!!!", exit, 1);
+				*port = atoi(argv[++i]);		
+				break;
+			case 'd':
+				if (i+1 >= argc) fatal("Incomplete flag!!!", exit, 1);
+				*dir = argv[++i];
+				break;
+			default:
+				fatal("Wrong flag!", log_usage, 1);
+		  }
+	  }	
+}
+
 int
 main(int argc, char** argv)
 {
-	if (argc != 3) fatal("Use: serve <port> <dir>", exit, 1);
+	int port = 8080;
+	char* dir = "./";
 
-	int port = atoi(argv[1]);
-	char* dir = argv[2];
+	flag_config(&port, &dir, argc, argv);
 
 	if (dir[strlen(dir)-1] != '/') fatal("Dir must end with '/'", exit, 1);
 
