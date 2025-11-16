@@ -31,5 +31,4 @@ TODO:
 - querys...
 
 FLAWS:
-- It handles text responces of up to 8kB, so it core dumps.
-- It also core dumps for no reason some times.
+- It core dumps for no reason some times.
