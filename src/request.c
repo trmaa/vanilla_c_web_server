@@ -1,3 +1,21 @@
+/*
+ * HTTP Server
+ *
+ * http_server/src/request.c
+ *
+ * -> Do with this code whatever you want but selling it, please.
+ * -> It must remain free forever.
+ *
+ * DOC:
+ *	respond(req, fd) 	
+ *	Sends data from a requested file to an fd (which btw, is the client's fd) by:
+ *	    1. Making sure its an http request.
+ *	    2. Cleaning up the path to the file.
+ *	    3. Opening the file in binary.
+ *	    4. Sending to the fd a valid http header based on the file type.
+ *	    5. Reading and sending the file to the fd 8 bytes chunks at a time.
+ */
+
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,7 +67,7 @@ get_content_type(const char* path)
 }
 
 void 
-respond(http_t req, char* dir, int client_fd)
+respond(http_t req, char* dir, int fd)
 {
 	if (strcmp(req.version, "HTTP/1.1")) fatal("Unsuported http version", exit, 1);
 	if (strcmp(req.method, "GET")) fatal("Unsuported http method", exit, 1);
@@ -65,7 +83,7 @@ respond(http_t req, char* dir, int client_fd)
 			"Content-Type: text/plain\r\n"
 			"\r\n"
 			"404 - File Not Found\r\n";
-		send(client_fd, response, strlen(response), 0);
+		send(fd, response, strlen(response), 0);
 		return;
 	  }
 
@@ -82,13 +100,13 @@ respond(http_t req, char* dir, int client_fd)
 					"Content-Length: %ld\r\n"
 					"\r\n", content_type, file_size);
 
-	send(client_fd, header, header_len, 0);
+	send(fd, header, header_len, 0);
 
-	char buffer[8192];
+	char buff[8192];
 	size_t bytes_read;
-	while ((bytes_read = fread(buffer, 1, sizeof(buffer), file)) > 0) 
+	while ((bytes_read = fread(buff, 1, sizeof(buff), file)) > 0) 
 	  {
-		send(client_fd, buffer, bytes_read, 0);
+		send(fd, buff, bytes_read, 0);
 	  }
 
 	fclose(file);

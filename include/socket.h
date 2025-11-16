@@ -12,4 +12,12 @@ typedef struct server{
 
 void server_setup(server_t* server, int port);
 
+typedef struct client {
+	int fd;
+	socketaddr_t addr;
+	socklen_t len;
+} client_t;
+
+void client_setup(client_t* client);
+
 #endif

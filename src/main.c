@@ -1,22 +1,40 @@
+/*
+ * HTTP Server
+ *
+ * http_server/src/main.c
+ *
+ * -> Do with this code whatever you want but selling it, please.
+ * -> It must remain free forever.
+ *
+ * DOC:
+ * 	Installation: ./scripts/make.sh build install
+ *
+ * 	Usage: serve [-p port] (default: 8080) [-d dir] (default: ./)
+ * 	Help: serve -h
+ * 	
+ * 	server_t and client_t
+ * 	Are structs which contain a file descriptor and their address.
+ *
+ * 	http_t
+ * 	Is a struct which stores a char* method, path, and version.
+ * 	Ex: GET /index.html HTTP/1.1
+ *
+ * 	main()	
+ * 	Will create an infinite loop where we:
+ * 	    1. Accept a new request into the client fd -via the server fd- to the client's address. 
+ * 	    2. Read the request from the client fd.
+ * 	    4. Process the request (parses the char* into an http_t creates a valid path for the requested file).
+ * 	    5. Sends a response to the client fd.
+ * 	    6. Closes the client
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include "log.h"
-#include "server.h"
-#include "client.h"
+#include "socket.h"
 #include "request.h"
-
-void
-log_usage(int err)
-{
-	fprintf(stderr, "Usage: serve [-p port] [-d directory]\n");
-	fprintf(stderr, "Options:\n");
-	fprintf(stderr, "  -h HELP\n");
-	fprintf(stderr, "  -p PORT      (default: 8080)\n");
-	fprintf(stderr, "  -d DIR       (default: ./)\n");
-	exit(err);
-}
 
 void
 flag_config(int* port, char** dir, int argc, char** argv)
@@ -36,7 +54,9 @@ flag_config(int* port, char** dir, int argc, char** argv)
 				break;
 			case 'd':
 				if (i+1 >= argc) fatal("Incomplete flag!!!", exit, 1);
-				*dir = argv[++i];
+				*dir = malloc(strlen(argv[i+1])+1);
+				strcpy(*dir, argv[++i]);
+				if ((*dir)[strlen(*dir)-1] != '/') fatal("Dir must end with '/'", exit, 1);
 				break;
 			default:
 				fatal("Wrong flag!", log_usage, 1);
@@ -52,14 +72,13 @@ main(int argc, char** argv)
 
 	flag_config(&port, &dir, argc, argv);
 
-	if (dir[strlen(dir)-1] != '/') fatal("Dir must end with '/'", exit, 1);
-
 	server_t server;
 	server_setup(&server, port);	
 
 	client_t client;
 	client_setup(&client);
 
+	debugf("Server fd: %d\n", server.fd);
 	debugf("Server is listening on port:  %d\n", port);
 
 	char req_buff[1025];

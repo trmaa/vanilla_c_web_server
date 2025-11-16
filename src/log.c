@@ -1,5 +1,26 @@
+/*
+ * HTTP Server
+ *
+ * http_server/src/log.c
+ *
+ * -> Do with this code whatever you want but selling it, please.
+ * -> It must remain free forever.
+ */
+
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdarg.h>
+
+void
+log_usage(int err)
+{
+	fprintf(stderr, "Usage: serve [-p port] [-d directory]\n");
+	fprintf(stderr, "Options:\n");
+	fprintf(stderr, "  -h HELP\n");
+	fprintf(stderr, "  -p PORT      (default: 8080)\n");
+	fprintf(stderr, "  -d DIR       (default: ./)\n");
+	exit(err);
+}
 
 void 
 fatal(char* s, void (*callback)(int), int err) 
