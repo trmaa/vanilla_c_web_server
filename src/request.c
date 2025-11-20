@@ -25,8 +25,7 @@
 #include "log.h"
 #include "request.h"
 
-http_t
-parse_request(char* req_buff)
+http_t parse_request(char* req_buff)
 {
 	http_t res = {"", "", ""};
 	char* line = strtok(req_buff, "\r\n"); 
@@ -36,8 +35,7 @@ parse_request(char* req_buff)
 	return res;
 }
 
-static char*
-get_content_type(const char* path)
+static char* get_content_type(const char* path)
 {
 	const char* ext = strrchr(path, '.');
 	if (!ext) return "text/plain";
@@ -66,8 +64,7 @@ get_content_type(const char* path)
 		return "text/plain";
 }
 
-void 
-respond(http_t req, char* dir, int fd)
+void respond(http_t req, char* dir, int fd)
 {
 	if (strcmp(req.version, "HTTP/1.1")) fatal("Unsuported http version", exit, 1);
 	if (strcmp(req.method, "GET")) fatal("Unsuported http method", exit, 1);
@@ -77,15 +74,14 @@ respond(http_t req, char* dir, int fd)
 	snprintf(path, sizeof(path), "%s%s", dir, req.path + 1);
 
 	FILE* file = fopen(path, "rb");
-	if (!file) 
-	  {
+	if (!file) {
 		char* response = "HTTP/1.1 404 Not Found\r\n"
 			"Content-Type: text/plain\r\n"
 			"\r\n"
 			"404 - File Not Found\r\n";
 		send(fd, response, strlen(response), 0);
 		return;
-	  }
+	}
 
 	fseek(file, 0, SEEK_END);
 	long file_size = ftell(file);
@@ -102,12 +98,12 @@ respond(http_t req, char* dir, int fd)
 
 	send(fd, header, header_len, 0);
 
-	char buff[8192];
+	char buff[8192]; // 8 kB chunk
 	size_t bytes_read;
-	while ((bytes_read = fread(buff, 1, sizeof(buff), file)) > 0) 
-	  {
+	while ((bytes_read = fread(buff, 1, sizeof(buff), file)) > 0) {
 		send(fd, buff, bytes_read, 0);
-	  }
+	}
 
 	fclose(file);
 }
+

@@ -8,7 +8,7 @@ Its a small vanilla C very basic program which lets you host html or whatever fi
 $ git clone https://github.com/trmaa/vanilla_c_web_server.git
 $ cd vanilla_c_web_server
 $ chmod +x ./scripts/make.sh
-$ ./scripts/make.sh build install
+$ c -n serve build install # C tool is my own build tool which you can find at my github, if not, run the following commands:
 gcc src/*.c -o serve -Iinclude
 cp serve /usr/bin/serve
 ```

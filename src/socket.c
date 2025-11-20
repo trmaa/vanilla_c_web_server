@@ -21,8 +21,7 @@
 #include "log.h"
 #include "socket.h"
 
-void
-server_setup(server_t* server, int port)
+void server_setup(server_t* server, int port)
 {
 	(server->fd = socket(AF_INET, SOCK_STREAM, 0)) < 0 ? fatal("Failed to create socket", exit, 1) : 0;
 
@@ -38,8 +37,7 @@ server_setup(server_t* server, int port)
 	listen(server->fd, 5) < 0 ? fatal("Failed to listen", exit, 1) : 0;
 }
 
-void
-client_setup(client_t* client)
+void client_setup(client_t* client)
 {
 	client->len = sizeof(client->addr);
 }

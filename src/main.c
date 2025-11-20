@@ -32,40 +32,37 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/socket.h>
 #include "log.h"
 #include "socket.h"
 #include "request.h"
 
-static void
-flag_config(int* port, char** dir, int argc, char** argv)
+static void flag_config(int* port, char** dir, int argc, char** argv)
 {
-	for (int i = 1; i < argc; i++) 
-	  {
+	for (int i = 1; i < argc; i++) {
 		if (argv[i][0] != '-') continue;
 
-		switch (argv[i][1])
-		  {
-			case 'h':
-				log_usage(0);
-				break;
-			case 'p':
-				if (i+1 >= argc) fatal("Incomplete flag!!!", exit, 1);
-				*port = atoi(argv[++i]);		
-				break;
-			case 'd':
-				if (i+1 >= argc) fatal("Incomplete flag!!!", exit, 1);
-				*dir = malloc(strlen(argv[i+1])+1);
-				strcpy(*dir, argv[++i]);
-				if ((*dir)[strlen(*dir)-1] != '/') fatal("Dir must end with '/'", exit, 1);
-				break;
-			default:
-				fatal("Wrong flag!", log_usage, 1);
-		  }
-	  }	
+		switch (argv[i][1]) {
+		case 'h':
+			log_usage(0);
+			break;
+		case 'p':
+			if (i+1 >= argc) fatal("Incomplete flag!!!", exit, 1);
+			*port = atoi(argv[++i]);		
+			break;
+		case 'd':
+			if (i+1 >= argc) fatal("Incomplete flag!!!", exit, 1);
+			*dir = malloc(strlen(argv[i+1])+1);
+			strcpy(*dir, argv[++i]);
+			if ((*dir)[strlen(*dir)-1] != '/') fatal("Dir must end with '/'", exit, 1);
+			break;
+		default:
+			fatal("Wrong flag!", log_usage, 1);
+		}
+	}	
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
 	int port = 8080;
 	char* dir = "./";
@@ -84,15 +81,13 @@ main(int argc, char** argv)
 	char req_buff[1025];
 	http_t req;
 
-	while (1) 
-	  {
+	while (1) {
 		client.fd = accept(server.fd, (struct sockaddr*)&client.addr, &client.len);
 
-		if (client.fd < 0)
-		  {
+		if (client.fd < 0) {
 			debug("Failed to accept connection.");
 			continue;
-		  }
+		}
 
 		debugf("Client fd: %d\n", client.fd);
 		
@@ -113,7 +108,7 @@ main(int argc, char** argv)
 		debug("Client's connection closed!");
 		close(client.fd);
 		client.fd = -1;
-	  }
+	}
 
 	close(server.fd);
 	exit(0);
