@@ -37,7 +37,8 @@
 #include "socket.h"
 #include "request.h"
 
-static void flag_config(int* port, char** dir, int argc, char** argv)
+static void 
+flag_config(int *port, char **dir, int argc, char **argv)
 {
 	for (int i = 1; i < argc; i++) {
 		if (argv[i][0] != '-') continue;
@@ -45,6 +46,10 @@ static void flag_config(int* port, char** dir, int argc, char** argv)
 		switch (argv[i][1]) {
 		case 'h':
 			log_usage(0);
+			break;
+		case 'v':
+			printf("1.0 release\n");
+			exit(0);
 			break;
 		case 'p':
 			if (i+1 >= argc) fatal("Incomplete flag!!!", exit, 1);
@@ -62,10 +67,10 @@ static void flag_config(int* port, char** dir, int argc, char** argv)
 	}	
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
 	int port = 8080;
-	char* dir = "./";
+	char *dir = "./";
 
 	flag_config(&port, &dir, argc, argv);
 

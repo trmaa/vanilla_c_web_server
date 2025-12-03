@@ -25,7 +25,7 @@
 #include "log.h"
 #include "request.h"
 
-http_t parse_request(char* req_buff)
+http_t parse_request(char *req_buff)
 {
 	http_t res = {"", "", ""};
 	char* line = strtok(req_buff, "\r\n"); 
@@ -35,7 +35,7 @@ http_t parse_request(char* req_buff)
 	return res;
 }
 
-static char* get_content_type(const char* path)
+static char *get_content_type(const char *path)
 {
 	const char* ext = strrchr(path, '.');
 	if (!ext) return "text/plain";
@@ -64,7 +64,7 @@ static char* get_content_type(const char* path)
 		return "text/plain";
 }
 
-void respond(http_t req, char* dir, int fd)
+void respond(http_t req, char *dir, int fd)
 {
 	if (strcmp(req.version, "HTTP/1.1")) fatal("Unsuported http version", exit, 1);
 	if (strcmp(req.method, "GET")) fatal("Unsuported http method", exit, 1);

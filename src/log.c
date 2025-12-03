@@ -21,13 +21,13 @@ void log_usage(int err)
 	exit(err);
 }
 
-void fatal(char* s, void (*callback)(int), int err) 
+void fatal(char *s, void (*callback)(int), int err) 
 {
 	fprintf(stderr, "\e[1;31m[FATAL] %s\e[0m\n", s);
 	callback(err);
 }
 
-void debug(char* s) 
+void debug(char *s) 
 {
 	printf("\e[1;33m[debug] * %s\e[0m\n", s);
 }

@@ -16,7 +16,13 @@ cp serve /usr/bin/serve
 ## Use:
 
 ``` console 
-$ serve [-p port] [-d directory]
+$ serve -h
+Usage: serve [-p port] [-d directory]
+Options:
+  -h HELP
+  -v VERSION
+  -p PORT      (default: 8080)
+  -d DIR       (default: ./)
 ```
 
 Example:
