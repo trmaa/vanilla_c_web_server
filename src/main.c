@@ -45,29 +45,29 @@ flag_config(int *port, char **dir, int argc, char **argv)
 
 		switch (argv[i][1]) {
 		case 'h':
-			log_usage(0);
+			help(EXIT_SUCCESS);
 			break;
 		case 'v':
 			printf("1.0 release\n");
 			exit(0);
 			break;
 		case 'p':
-			if (i+1 >= argc) fatal("Incomplete flag!!!", exit, 1);
-			*port = atoi(argv[++i]);		
+			if (i+1 >= argc) fatal("Incomplete flag!!!", exit, EXIT_FAILURE);
+			*port = atoi(argv[++i]);
 			break;
 		case 'd':
-			if (i+1 >= argc) fatal("Incomplete flag!!!", exit, 1);
+			if (i+1 >= argc) fatal("Incomplete flag!!!", exit, EXIT_FAILURE);
 			*dir = malloc(strlen(argv[i+1])+1);
 			strcpy(*dir, argv[++i]);
 			if ((*dir)[strlen(*dir)-1] != '/') fatal("Dir must end with '/'", exit, 1);
 			break;
 		default:
-			fatal("Wrong flag!", log_usage, 1);
+			fatal("Wrong flag!", help, EXIT_FAILURE);
 		}
-	}	
+	}
 }
 
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
 	int port = 8080;
 	char *dir = "./";
@@ -75,7 +75,7 @@ int main(int argc, char **argv)
 	flag_config(&port, &dir, argc, argv);
 
 	server_t server;
-	server_setup(&server, port);	
+	server_setup(&server, port);
 
 	client_t client;
 	client_setup(&client);
@@ -110,11 +110,9 @@ int main(int argc, char **argv)
 
 		respond(req, dir, client.fd);
 
-		debug("Client's connection closed!");
 		close(client.fd);
-		client.fd = -1;
+		debug("Client's connection closed!");
 	}
 
 	close(server.fd);
-	exit(0);
 }

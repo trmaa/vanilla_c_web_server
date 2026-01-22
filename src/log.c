@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-void log_usage(int err)
+void help(int err)
 {
 	fprintf(stderr, "Usage: serve [-p port] [-d directory]\n");
 	fprintf(stderr, "Options:\n");

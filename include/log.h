@@ -1,7 +1,7 @@
 #ifndef LOG_H
 #define LOG_H
 
-void log_usage(int err);
+void help(int err);
 
 void fatal(char* s, void (*callback)(int), int err);
 

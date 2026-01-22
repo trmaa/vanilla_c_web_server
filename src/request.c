@@ -21,13 +21,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <dirent.h>
 #include <unistd.h>
 #include "log.h"
 #include "request.h"
 
 http_t parse_request(char *req_buff)
 {
-	http_t res = {"", "", ""};
+	http_t res = { "", "", "" };
 	char* line = strtok(req_buff, "\r\n"); 
 
 	sscanf(line, "%32s %255s %63s", res.method, res.path, res.version);
@@ -66,20 +67,22 @@ static char *get_content_type(const char *path)
 
 void respond(http_t req, char *dir, int fd)
 {
-	if (strcmp(req.version, "HTTP/1.1")) fatal("Unsuported http version", exit, 1);
-	if (strcmp(req.method, "GET")) fatal("Unsuported http method", exit, 1);
-	if (req.path[0] != '/') fatal("Path must be absolute", exit, 1);
+	if (strcmp(req.version, "HTTP/1.1")) 
+		fatal("Unsuported http version", exit, 1);
+	if (strcmp(req.method, "GET"))
+		fatal("Unsuported http method", exit, 1);
+	if (req.path[0] != '/')
+		fatal("Path must be absolute", exit, 1);
 
 	char path[1024];
 	snprintf(path, sizeof(path), "%s%s", dir, req.path + 1);
 
-	FILE* file = fopen(path, "rb");
+	FILE *file = fopen(path, "rb");
+
 	if (!file) {
-		char* response = "HTTP/1.1 404 Not Found\r\n"
-			"Content-Type: text/plain\r\n"
-			"\r\n"
-			"404 - File Not Found\r\n";
+		char* response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 - File Not Found\r\n";
 		send(fd, response, strlen(response), 0);
+		fclose(file);
 		return;
 	}
 
