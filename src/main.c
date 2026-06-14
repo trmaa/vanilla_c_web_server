@@ -7,25 +7,25 @@
  * -> It must remain free forever.
  *
  * DOC:
- * 	Installation: ./scripts/make.sh build install
+ *	Installation: ./scripts/make.sh build install
  *
- * 	Usage: serve [-p port] (default: 8080) [-d dir] (default: ./)
- * 	Help: serve -h
- * 	
- * 	server_t and client_t
- * 	Are structs which contain a file descriptor and their address.
+ *	Usage: serve [-p port] (default: 8080) [-d dir] (default: ./)
+ *	Help: serve -h
  *
- * 	http_t
- * 	Is a struct which stores a char* method, path, and version.
- * 	Ex: GET /index.html HTTP/1.1
+ *	struct server and struct client
+ *	Are structs which contain a file descriptor and their address.
  *
- * 	main()	
- * 	Will create an infinite loop where we:
- * 	    1. Accept a new request into the client fd -via the server fd- to the client's address. 
- * 	    2. Read the request from the client fd.
- * 	    4. Process the request (parses the char* into an http_t creates a valid path for the requested file).
- * 	    5. Sends a response to the client fd.
- * 	    6. Closes the client
+ *	struct http
+ *	Is a struct which stores a char *method, path, and version.
+ *	Ex: GET /index.html HTTP/1.1
+ *
+ *	main()
+ *	Will create an infinite loop where we:
+ *	    1. Accept a new request into the client fd -via the server fd- to the client's address.
+ *	    2. Read the request from the client fd.
+ *	    4. Process the request (parses the char* into an struct http creates a valid path for the requested file).
+ *	    5. Sends a response to the client fd.
+ *	    6. Closes the client
  */
 
 #include <stdio.h>
@@ -33,36 +33,39 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/socket.h>
-#include "log.h"
+#include "error.h"
 #include "socket.h"
 #include "request.h"
 
-static void 
-flag_config(int *port, char **dir, int argc, char **argv)
+static void flag_config(int *port, char **dir, int argc, char **argv)
 {
 	for (int i = 1; i < argc; i++) {
-		if (argv[i][0] != '-') continue;
+		if (argv[i][0] != '-')
+			continue;
 
 		switch (argv[i][1]) {
 		case 'h':
-			help(EXIT_SUCCESS);
+			help(OK);
 			break;
 		case 'v':
 			printf("1.0 release\n");
-			exit(0);
+			exit(OK);
 			break;
 		case 'p':
-			if (i+1 >= argc) fatal("Incomplete flag!!!", exit, EXIT_FAILURE);
+			if (i + 1 >= argc)
+				fatal("Incomplete flag!!!", NULL, USER_ERROR);
 			*port = atoi(argv[++i]);
 			break;
 		case 'd':
-			if (i+1 >= argc) fatal("Incomplete flag!!!", exit, EXIT_FAILURE);
-			*dir = malloc(strlen(argv[i+1])+1);
+			if (i + 1 >= argc)
+				fatal("Incomplete flag!!!", NULL, USER_ERROR);
+			*dir = malloc(strlen(argv[i + 1]) + 1);
 			strcpy(*dir, argv[++i]);
-			if ((*dir)[strlen(*dir)-1] != '/') fatal("Dir must end with '/'", exit, 1);
+			if ((*dir)[strlen(*dir) - 1] != '/')
+				fatal("Dir must end with '/'", NULL, USER_ERROR);
 			break;
 		default:
-			fatal("Wrong flag!", help, EXIT_FAILURE);
+			fatal("Wrong flag!", help, USER_ERROR);
 		}
 	}
 }
@@ -74,20 +77,21 @@ int main(int argc, char *argv[])
 
 	flag_config(&port, &dir, argc, argv);
 
-	server_t server;
+	struct server server;
 	server_setup(&server, port);
 
-	client_t client;
+	struct client client;
 	client_setup(&client);
 
 	debugf("Server fd: %d\n", server.fd);
 	debugf("Server is listening on port:  %d\n", port);
 
 	char req_buff[1025];
-	http_t req;
+	struct http req;
 
 	while (1) {
-		client.fd = accept(server.fd, (struct sockaddr*)&client.addr, &client.len);
+		client.fd = accept(server.fd, (struct sockaddr *)&client.addr,
+				   &client.len);
 
 		if (client.fd < 0) {
 			debug("Failed to accept connection.");
@@ -95,10 +99,10 @@ int main(int argc, char *argv[])
 		}
 
 		debugf("Client fd: %d\n", client.fd);
-		
+
 		debugf("Client connected from: %s:%d\n",
-				inet_ntoa(client.addr.sin_addr),
-				ntohs(client.addr.sin_port));
+		       inet_ntoa(client.addr.sin_addr),
+		       ntohs(client.addr.sin_port));
 
 		int bytes_read = recv(client.fd, req_buff, 1024, 0);
 

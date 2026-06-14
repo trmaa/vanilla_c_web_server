@@ -1,7 +1,7 @@
 /*
  * HTTP Server
  *
- * http_server/src/log.c
+ * http_server/src/error.c
  *
  * -> Do with this code whatever you want but selling it, please.
  * -> It must remain free forever.
@@ -10,8 +10,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include "error.h"
 
-void help(int err)
+void help(enum status err)
 {
 	fprintf(stderr, "Usage: serve [-p port] [-d directory]\n");
 	fprintf(stderr, "Options:\n");
@@ -21,30 +22,32 @@ void help(int err)
 	exit(err);
 }
 
-void fatal(char *s, void (*callback)(int), int err) 
+void fatal(char *s, void (*callback)(enum status), enum status err)
 {
-	fprintf(stderr, "\e[1;31m[FATAL] %s\e[0m\n", s);
-	callback(err);
+	fprintf(stderr, "\033[1;31m[FATAL] %s\033[0m\n", s);
+	if (callback)
+		callback(err);
+	exit(err);
 }
 
-void debug(char *s) 
+void debug(char *s)
 {
-	printf("\e[1;33m[debug] * %s\e[0m\n", s);
+	printf("\033[1;33m[debug] * %s\033[0m\n", s);
 }
 
-void debugf(const char *format, ...) 
+void debugf(const char *format, ...)
 {
-	printf("\e[1;33m[debug] * ");
+	printf("\033[1;33m[debug] * ");
 
 	va_list args;
 	va_start(args, format);
 
 	while (*format != '\0') {
 		if (*format == '%') {
-			format++; // Move past the '%'
+			format++;
 
 			switch (*format) {
-			case 'd': 
+			case 'd':
 			{
 				int num = va_arg(args, int);
 				printf("%d", num);
@@ -74,7 +77,7 @@ void debugf(const char *format, ...)
 				break;
 			}
 			default:
-				printf("%%%c", *format); // Print unknown format literally
+				printf("%%%c", *format);
 				break;
 			}
 		} else {
@@ -84,6 +87,6 @@ void debugf(const char *format, ...)
 	}
 
 	va_end(args);
-	
-	printf("\e[0m");
+
+	printf("\033[0m");
 }

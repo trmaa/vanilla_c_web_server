@@ -1,13 +1,9 @@
-#ifndef REQUEST_H
-#define REQUEST_H
+#pragma once
 
-typedef struct http {
+struct http {
 	char method[33], path[256], version[65];
-} http_t;
+};
 
-http_t parse_request(char *req_buff);
+struct http parse_request(char *req_buff);
 
-void respond(http_t req, char *dir, int client_fd);
-
-#endif
-
+void respond(struct http req, char *dir, int client_fd);

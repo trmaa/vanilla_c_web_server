@@ -1,23 +1,17 @@
-#ifndef SERVER_H
-#define SERVER_H
+#pragma once
 
 #include <arpa/inet.h>
 
-typedef struct sockaddr_in socketaddr_t;
-
-typedef struct server{
+struct server {
 	int fd;
-	socketaddr_t addr;
-} server_t;
+	struct sockaddr_in addr;
+};
 
-void server_setup(server_t* server, int port);
-
-typedef struct client {
+struct client {
 	int fd;
-	socketaddr_t addr;
+	struct sockaddr_in addr;
 	socklen_t len;
-} client_t;
+};
 
-void client_setup(client_t* client);
-
-#endif
+void server_setup(struct server *server, int port);
+void client_setup(struct client *client);

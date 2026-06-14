@@ -7,7 +7,7 @@
  * -> It must remain free forever.
  *
  * DOC:
- *	respond(req, fd) 	
+ *	respond(req, fd)
  *	Sends data from a requested file to an fd (which btw, is the client's fd) by:
  *	    1. Making sure its an http request.
  *	    2. Cleaning up the path to the file.
@@ -23,13 +23,13 @@
 #include <sys/socket.h>
 #include <dirent.h>
 #include <unistd.h>
-#include "log.h"
+#include "error.h"
 #include "request.h"
 
-http_t parse_request(char *req_buff)
+struct http parse_request(char *req_buff)
 {
-	http_t res = { "", "", "" };
-	char* line = strtok(req_buff, "\r\n"); 
+	struct http res = { "", "", "" };
+	char *line = strtok(req_buff, "\r\n");
 
 	sscanf(line, "%32s %255s %63s", res.method, res.path, res.version);
 
@@ -38,8 +38,9 @@ http_t parse_request(char *req_buff)
 
 static char *get_content_type(const char *path)
 {
-	const char* ext = strrchr(path, '.');
-	if (!ext) return "text/plain";
+	const char *ext = strrchr(path, '.');
+	if (!ext)
+		return "text/plain";
 
 	if (strcmp(ext, ".html") == 0 || strcmp(ext, ".htm") == 0)
 		return "text/html";
@@ -65,14 +66,14 @@ static char *get_content_type(const char *path)
 		return "text/plain";
 }
 
-void respond(http_t req, char *dir, int fd)
+void respond(struct http req, char *dir, int fd)
 {
-	if (strcmp(req.version, "HTTP/1.1")) 
-		fatal("Unsuported http version", exit, 1);
+	if (strcmp(req.version, "HTTP/1.1"))
+		fatal("Unsuported http version", NULL, ERROR);
 	if (strcmp(req.method, "GET"))
-		fatal("Unsuported http method", exit, 1);
+		fatal("Unsuported http method", NULL, ERROR);
 	if (req.path[0] != '/')
-		fatal("Path must be absolute", exit, 1);
+		fatal("Path must be absolute", NULL, ERROR);
 
 	char path[1024];
 	snprintf(path, sizeof(path), "%s%s", dir, req.path + 1);
@@ -80,7 +81,8 @@ void respond(http_t req, char *dir, int fd)
 	FILE *file = fopen(path, "rb");
 
 	if (!file) {
-		char* response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 - File Not Found\r\n";
+		char *response =
+		    "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 - File Not Found\r\n";
 		send(fd, response, strlen(response), 0);
 		fclose(file);
 		return;
@@ -90,23 +92,21 @@ void respond(http_t req, char *dir, int fd)
 	long file_size = ftell(file);
 	fseek(file, 0, SEEK_SET);
 
-	const char* content_type = get_content_type(path);
+	const char *content_type = get_content_type(path);
 
 	char header[512];
 	int header_len = snprintf(header, sizeof(header),
-					"HTTP/1.1 200 OK\r\n"
-					"Content-Type: %s\r\n"
-					"Content-Length: %ld\r\n"
-					"\r\n", content_type, file_size);
+				  "HTTP/1.1 200 OK\r\n"
+				  "Content-Type: %s\r\n"
+				  "Content-Length: %ld\r\n"
+				  "\r\n", content_type, file_size);
 
 	send(fd, header, header_len, 0);
 
-	char buff[8192]; // 8 kB chunk
+	char buff[8192];
 	size_t bytes_read;
-	while ((bytes_read = fread(buff, 1, sizeof(buff), file)) > 0) {
+	while ((bytes_read = fread(buff, 1, sizeof(buff), file)) > 0)
 		send(fd, buff, bytes_read, 0);
-	}
 
 	fclose(file);
 }
-
