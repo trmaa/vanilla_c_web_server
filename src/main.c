@@ -26,6 +26,10 @@
  *	    4. Process the request (parses the char* into an struct http creates a valid path for the requested file).
  *	    5. Sends a response to the client fd.
  *	    6. Closes the client
+ * 
+ * Copyright (c) 2026
+ * Author: Pablo Trik Marin (trmaa) <mail@pablotrik.online>
+ * License: GPL 3.0
  */
 
 #include <stdio.h>
